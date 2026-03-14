@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Algorithms</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:'Arial',sans-serif;
+            line-height:1.6;
+            color:#fff;
+            background:#0f0e17;
+            min-height:100vh;
+        }
+
+        .navbar{
+            position:fixed;
+            top:0;
+            left:0;
+            right:0;
+            background:#1f1f23;
+            border-bottom:2px solid #9146ff;
+            padding:1rem 0;
+            z-index:1000;
+        }
+
+        .nav-container{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            max-width:1200px;
+            margin:0 auto;
+            gap:2rem;
+        }
+
+        .nav-btn{
+            padding:12px 30px;
+            background:#9146ff;
+            color:white;
+            border:2px solid #9146ff;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:600;
+            text-transform:uppercase;
+            letter-spacing:1px;
+            transition:all 0.3s ease;
+        }
+
+        .nav-btn:hover{
+            background:#772ce8;
+            border-color:#772ce8;
+        }
+
+        .main-content{
+            margin-top:100px;
+            padding:2rem;
+        }
+
+        .section{
+            max-width:1200px;
+            margin:0 auto 4rem auto;
+            padding:1rem 0;
+        }
+
+        .section-title{
+            text-align:center;
+            font-size:3rem;
+            font-weight:bold;
+            color:white;
+            margin-bottom:1rem;
+            text-shadow:2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card-container{
+            max-width:900px;
+            margin:0 auto;
+            background:#1f1f23;
+            border:2px solid #9146ff;
+            box-shadow:0 4px 15px rgba(145,70,255,0.3);
+            padding:3rem;
+            margin-bottom:2rem;
+            border-radius:6px;
+        }
+
+        .input-container{
+            display:flex;
+            gap:10px;
+            justify-content:center;
+            align-items:center;
+            flex-wrap:wrap;
+        }
+
+        .array-input{
+            padding:12px 20px;
+            background:#0f0e17;
+            color:white;
+            border:2px solid #9146ff;
+            border-radius:6px;
+            font-size:16px;
+            width:250px;
+            outline:none;
+            transition:all 0.3s ease;
+        }
+
+        .array-input:focus{
+            border-color:#772ce8;
+            box-shadow:0 0 10px rgba(145,70,255,0.5);
+        }
+
+        .array-input::placeholder{
+            color:#53535f;
+        }
+
+        .submit-btn{
+            padding:12px 30px;
+            background:#9146ff;
+            color:white;
+            border:2px solid #9146ff;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:16px;
+            font-weight:600;
+            text-transform:uppercase;
+            letter-spacing:1px;
+            transition:all 0.3s ease;
+        }
+
+        .submit-btn:hover{
+            background:#772ce8;
+            border-color:#772ce8;
+        }
+
+        .visualization-container{
+            margin-top:2rem;
+            padding:20px;
+            background:#0f0e17;
+            border:2px solid #9146ff;
+            min-height:200px;
+            border-radius:6px;
+        }
+
+        .array-box-container{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        }
+
+        .array-box{
+            width:60px;
+            height:60px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#1f1f23;
+            border:2px solid #9146ff;
+            color:white;
+            font-size:20px;
+            font-weight:bold;
+            position:relative;
+            transition:all 0.3s ease;
+            border-radius:6px;
+        }
+
+        .array-box.current{
+            background:#9146ff;
+            transform:scale(1.1);
+        }
+
+        .array-box.found{
+            background:#00ff00;
+            border-color:#00ff00;
+        }
+
+        .array-box.checked{
+            background:#772ce8;
+            opacity:0.6;
+        }
+
+        .info-text{
+            text-align:center;
+            color:#9146ff;
+            font-size:18px;
+            font-weight:600;
+            margin-top:15px;
+        }
+
+        .controls{
+            display:flex;
+            gap:10px;
+            justify-content:center;
+            margin-top:15px;
+            flex-wrap:wrap;
+        }
+
+        .control-btn{
+            padding:10px 20px;
+            background:#9146ff;
+            color:white;
+            border:2px solid #9146ff;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+            text-transform:uppercase;
+            transition:all 0.3s ease;
+            border-radius:6px;
+        }
+
+        .control-btn:hover{
+            background:#772ce8;
+        }
+
+        .control-btn:disabled{
+            background:#53535f;
+            border-color:#53535f;
+            cursor:not-allowed;
+            opacity:0.5;
+        }
+
+        html{
+            scroll-behavior:smooth;
+        }
+
+        .range-labels{
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            margin-top:10px;
+            font-size:14px;
+            color:#9146ff;
+        }
+
+        .comparison-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+            margin-top:2rem;
+        }
+
+        .comparison-side{
+            background:#0f0e17;
+            border:2px solid #9146ff;
+            padding:20px;
+            border-radius:6px;
+        }
+
+        .comparison-side h4{
+            color:#9146ff;
+            text-align:center;
+            margin-bottom:15px;
+            font-size:1.2rem;
+        }
+
+        .stats{
+            text-align:center;
+            margin-top:10px;
+            color:#fff;
+            font-size:14px;
+        }
+
+        .stats strong{
+            color:#9146ff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <button class="nav-btn" onclick="scrollToSection('linear-search')">Linear Search</button>
+            <button class="nav-btn" onclick="scrollToSection('binary-search')">Binary Search</button>
+            <button class="nav-btn" onclick="scrollToSection('comparison')">Compare Both</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <section id="linear-search" class="section">
+            <h2 class="section-title">Linear Search</h2>
+            <div class="card-container">
+                <h3 style="text-align:center;margin-bottom:1rem;">Sequential Search - O(n)</h3>
+                <p style="text-align:center;margin-bottom:2rem;">Checks each element one by one from the beginning until the target is found.</p>
+                <div class="input-container">
+                    <input type="text" id="linear-array-input" class="array-input" placeholder="Array: 5,3,8,1,9">
+                    <input type="text" id="linear-target-input" class="array-input" placeholder="Target: 8" style="width:150px;">
+                    <button class="submit-btn" onclick="startLinearSearch()">Search</button>
+                </div>
+                <div class="visualization-container" id="linear-visualization">
+                    <div class="info-text">Enter array and target to visualize</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="binary-search" class="section">
+            <h2 class="section-title">Binary Search</h2>
+            <div class="card-container">
+                <h3 style="text-align:center;margin-bottom:1rem;">Divide & Conquer - O(log n)</h3>
+                <p style="text-align:center;margin-bottom:2rem;">Divides search space in half by comparing with middle element. <strong>Requires sorted array!</strong></p>
+                <div class="input-container">
+                    <input type="text" id="binary-array-input" class="array-input" placeholder="Sorted: 1,2,3,5,8,9">
+                    <input type="text" id="binary-target-input" class="array-input" placeholder="Target: 5" style="width:150px;">
+                    <button class="submit-btn" onclick="startBinarySearch()">Search</button>
+                </div>
+                <div class="visualization-container" id="binary-visualization">
+                    <div class="info-text">Enter sorted array and target to visualize</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="comparison" class="section">
+            <h2 class="section-title">Compare Both Searches</h2>
+            <div class="card-container">
+                <h3 style="text-align:center;margin-bottom:1rem;">Side-by-Side Comparison</h3>
+                <p style="text-align:center;margin-bottom:2rem;">Watch both algorithms search simultaneously to see the speed difference!</p>
+                <div class="input-container">
+                    <input type="text" id="compare-array-input" class="array-input" placeholder="Sorted: 1,2,3,4,5,6,7,8,9,10">
+                    <input type="text" id="compare-target-input" class="array-input" placeholder="Target: 7" style="width:150px;">
+                    <button class="submit-btn" onclick="startComparison()">Compare</button>
+                </div>
+                
+                <div class="comparison-grid" id="comparison-container" style="display:none;">
+                    <div class="comparison-side">
+                        <h4>Linear Search</h4>
+                        <div id="compare-linear-vis"></div>
+                        <div class="stats" id="linear-stats"></div>
+                    </div>
+                    <div class="comparison-side">
+                        <h4>Binary Search</h4>
+                        <div id="compare-binary-vis"></div>
+                        <div class="stats" id="binary-stats"></div>
+                    </div>
+                </div>
+
+                <div class="controls" id="compare-controls" style="display:none;margin-top:20px;">
+                    <button class="control-btn" onclick="nextCompareStep()">Next Step</button>
+                    <button class="control-btn" onclick="resetComparison()">Reset</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Global variables
+        var linearArray = [];
+        var linearTarget = 0;
+        var linearIndex = 0;
+        var linearSteps = 0;
+
+        var binaryArray = [];
+        var binaryTarget = 0;
+        var binaryLeft = 0;
+        var binaryRight = 0;
+        var binaryMid = 0;
+        var binarySteps = 0;
+
+        var compareArray = [];
+        var compareTarget = 0;
+        var compareLinearIndex = 0;
+        var compareBinaryLeft = 0;
+        var compareBinaryRight = 0;
+        var compareBinaryMid = 0;
+        var compareLinearSteps = 0;
+        var compareBinarySteps = 0;
+        var compareLinearDone = false;
+        var compareBinaryDone = false;
+
+        function scrollToSection(sectionId){
+            var section = document.getElementById(sectionId);
+            if(section){
+                section.scrollIntoView({behavior:'smooth',block:'center'});
+            }
+        }
+
+        // Linear Search Functions
+        function startLinearSearch(){
+            var arrayInput = document.getElementById('linear-array-input').value;
+            var targetInput = document.getElementById('linear-target-input').value;
+            
+            if(arrayInput=="" || targetInput==""){
+                alert('Please enter both array and target value');
+                return;
+            }
+
+            var arr = arrayInput.split(',');
+            linearArray = [];
+            for(var i=0; i<arr.length; i++){
+                linearArray.push(parseInt(arr[i]));
+            }
+            linearTarget = parseInt(targetInput);
+            linearIndex = 0;
+            linearSteps = 0;
+
+            showLinearSearch();
+        }
+
+        function showLinearSearch(){
+            var container = document.getElementById('linear-visualization');
+            var html = '<div class="array-box-container">';
+            
+            for(var i=0; i<linearArray.length; i++){
+                var className = 'array-box';
+                if(i == linearIndex){
+                    className += ' current';
+                }
+                else if(i < linearIndex){
+                    className += ' checked';
+                }
+                if(linearArray[i] == linearTarget && i == linearIndex){
+                    className += ' found';
+                }
+                html += '<div class="'+className+'">'+linearArray[i]+'</div>';
+            }
+            html += '</div>';
+
+            if(linearIndex < linearArray.length){
+                var msg = 'Step '+linearSteps+': Checking index '+linearIndex+' → '+linearArray[linearIndex];
+                if(linearArray[linearIndex] == linearTarget){
+                    msg += ' == FOUND!';
+                }
+                else{
+                    msg += ' != '+linearTarget;
+                }
+                html += '<div class="info-text">'+msg+'</div>';
+            }
+
+            html += '<div class="controls">';
+            html += '<button class="control-btn" onclick="nextLinearStep()">Next Step</button>';
+            html += '<button class="control-btn" onclick="resetLinear()">Reset</button>';
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        function nextLinearStep(){
+            linearSteps++;
+            if(linearIndex < linearArray.length){
+                if(linearArray[linearIndex] == linearTarget){
+                    showLinearSearch();
+                    return;
+                }
+                linearIndex++;
+                showLinearSearch();
+            }
+        }
+
+        function resetLinear(){
+            if(linearArray.length > 0){
+                linearIndex = 0;
+                linearSteps = 0;
+                showLinearSearch();
+            }
+        }
+
+        // Binary Search Functions
+        function startBinarySearch(){
+            var arrayInput = document.getElementById('binary-array-input').value;
+            var targetInput = document.getElementById('binary-target-input').value;
+            
+            if(arrayInput=="" || targetInput==""){
+                alert('Please enter both array and target value');
+                return;
+            }
+
+            var arr = arrayInput.split(',');
+            binaryArray = [];
+            for(var i=0; i<arr.length; i++){
+                binaryArray.push(parseInt(arr[i]));
+            }
+            for(var i=0; i<binaryArray.length-1; i++){
+                if(binaryArray[i] > binaryArray[i+1]){
+                    alert('Array must be sorted for Binary Search! Please enter a sorted array.');
+                    return;
+                }
+            }
+            binaryTarget = parseInt(targetInput);
+            binaryLeft = 0;
+            binaryRight = binaryArray.length - 1;
+            binaryMid = Math.floor((binaryLeft + binaryRight) / 2);
+            binarySteps = 0;
+
+            showBinarySearch();
+        }
+
+        function showBinarySearch(){
+            var container = document.getElementById('binary-visualization');
+            var html = '<div class="array-box-container">';
+            
+            for(var i=0; i<binaryArray.length; i++){
+                var className = 'array-box';
+                if(i == binaryMid){
+                    className += ' current';
+                }
+                else if(i >= binaryLeft && i <= binaryRight){
+                    className = 'array-box';
+                }
+                else{
+                    className += ' checked';
+                }
+                if(binaryArray[i] == binaryTarget && i == binaryMid){
+                    className += ' found';
+                }
+                html += '<div class="'+className+'">'+binaryArray[i]+'</div>';
+            }
+            html += '</div>';
+
+            html += '<div class="range-labels">';
+            html += '<span>Left: '+binaryLeft+'</span>';
+            html += '<span>Mid: '+binaryMid+'</span>';
+            html += '<span>Right: '+binaryRight+'</span>';
+            html += '</div>';
+
+            if(binaryLeft <= binaryRight){
+                if(binaryArray[binaryMid] == binaryTarget){
+                    html += '<div class="info-text">Step '+binarySteps+': Target '+binaryTarget+' FOUND at index '+binaryMid+'!</div>';
+                }
+                else if(binaryArray[binaryMid] < binaryTarget){
+                    html += '<div class="info-text">Step '+binarySteps+': '+binaryArray[binaryMid]+' < '+binaryTarget+', search RIGHT half</div>';
+                }
+                else{
+                    html += '<div class="info-text">Step '+binarySteps+': '+binaryArray[binaryMid]+' > '+binaryTarget+', search LEFT half</div>';
+                }
+            }
+            else{
+                html += '<div class="info-text">Target '+binaryTarget+' NOT FOUND</div>';
+            }
+
+            html += '<div class="controls">';
+            html += '<button class="control-btn" onclick="nextBinaryStep()">Next Step</button>';
+            html += '<button class="control-btn" onclick="resetBinary()">Reset</button>';
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        function nextBinaryStep(){
+            binarySteps++;
+
+            if(binaryLeft > binaryRight || binaryArray[binaryMid] == binaryTarget){
+                showBinarySearch();
+                return;
+            }
+
+            if(binaryArray[binaryMid] < binaryTarget){
+                binaryLeft = binaryMid + 1;
+            }
+            else{
+                binaryRight = binaryMid - 1;
+            }
+
+            binaryMid = Math.floor((binaryLeft + binaryRight) / 2);
+            showBinarySearch();
+        }
+
+        function resetBinary(){
+            if(binaryArray.length > 0){
+                binaryLeft = 0;
+                binaryRight = binaryArray.length - 1;
+                binaryMid = Math.floor((binaryLeft + binaryRight) / 2);
+                binarySteps = 0;
+                showBinarySearch();
+            }
+        }
+
+        // Comparison Functions
+        function startComparison(){
+            var arrayInput = document.getElementById('compare-array-input').value;
+            var targetInput = document.getElementById('compare-target-input').value;
+            
+            if(arrayInput=="" || targetInput==""){
+                alert('Please enter both array and target value');
+                return;
+            }
+
+            var arr = arrayInput.split(',');
+            compareArray = [];
+            for(var i=0; i<arr.length; i++){
+                compareArray.push(parseInt(arr[i]));
+            }
+            for(var i=0; i<compareArray.length-1; i++){
+                if(compareArray[i] > compareArray[i+1]){
+                    alert('Array must be sorted for Binary Search! Please enter a sorted array.');
+                    return;
+                }
+            }
+            compareTarget = parseInt(targetInput);
+            compareLinearIndex = 0;
+            compareBinaryLeft = 0;
+            compareBinaryRight = compareArray.length - 1;
+            compareBinaryMid = Math.floor((compareBinaryLeft + compareBinaryRight) / 2);
+            compareLinearSteps = 0;
+            compareBinarySteps = 0;
+            compareLinearDone = false;
+            compareBinaryDone = false;
+
+            document.getElementById('comparison-container').style.display = 'grid';
+            document.getElementById('compare-controls').style.display = 'flex';
+            
+            showComparison();
+        }
+
+        function showComparison(){
+            // Linear visualization
+            var linearHtml = '<div class="array-box-container">';
+            for(var i=0; i<compareArray.length; i++){
+                var className = 'array-box';
+                if(i == compareLinearIndex && !compareLinearDone){
+                    className += ' current';
+                }
+                else if(i < compareLinearIndex){
+                    className += ' checked';
+                }
+                if(compareArray[i] == compareTarget && i == compareLinearIndex){
+                    className += ' found';
+                }
+                linearHtml += '<div class="'+className+'">'+compareArray[i]+'</div>';
+            }
+            linearHtml += '</div>';
+            
+            document.getElementById('compare-linear-vis').innerHTML = linearHtml;
+            
+            var linearStatsHtml = '<strong>Steps: '+compareLinearSteps+'</strong><br>';
+            if(compareLinearDone){
+                linearStatsHtml += '<span style="color:#00ff00;">✓ Complete</span>';
+            }
+            else{
+                linearStatsHtml += 'Searching...';
+            }
+            document.getElementById('linear-stats').innerHTML = linearStatsHtml;
+            
+            // Binary visualization
+            var binaryHtml = '<div class="array-box-container">';
+            for(var i=0; i<compareArray.length; i++){
+                var className = 'array-box';
+                if(i == compareBinaryMid && !compareBinaryDone){
+                    className += ' current';
+                }
+                else if(i >= compareBinaryLeft && i <= compareBinaryRight && !compareBinaryDone){
+                    className = 'array-box';
+                }
+                else{
+                    className += ' checked';
+                }
+                if(compareArray[i] == compareTarget && i == compareBinaryMid){
+                    className += ' found';
+                }
+                binaryHtml += '<div class="'+className+'">'+compareArray[i]+'</div>';
+            }
+            binaryHtml += '</div>';
+            
+            document.getElementById('compare-binary-vis').innerHTML = binaryHtml;
+            
+            var binaryStatsHtml = '<strong>Steps: '+compareBinarySteps+'</strong><br>';
+            if(compareBinaryDone){
+                binaryStatsHtml += '<span style="color:#00ff00;">✓ Complete</span>';
+            }
+            else{
+                binaryStatsHtml += 'Searching...';
+            }
+            document.getElementById('binary-stats').innerHTML = binaryStatsHtml;
+        }
+
+        function nextCompareStep(){
+            // Step linear search
+            if(!compareLinearDone){
+                compareLinearSteps++;
+                if(compareArray[compareLinearIndex] == compareTarget){
+                    compareLinearDone = true;
+                }
+                else if(compareLinearIndex < compareArray.length - 1){
+                    compareLinearIndex++;
+                }
+                else{
+                    compareLinearDone = true;
+                }
+            }
+            
+            // Step binary search
+            if(!compareBinaryDone){
+                compareBinarySteps++;
+                
+                if(compareArray[compareBinaryMid] == compareTarget){
+                    compareBinaryDone = true;
+                }
+                else if(compareBinaryLeft > compareBinaryRight){
+                    compareBinaryDone = true;
+                }
+                else{
+                    if(compareArray[compareBinaryMid] < compareTarget){
+                        compareBinaryLeft = compareBinaryMid + 1;
+                    }
+                    else{
+                        compareBinaryRight = compareBinaryMid - 1;
+                    }
+                    compareBinaryMid = Math.floor((compareBinaryLeft + compareBinaryRight) / 2);
+                }
+            }
+            
+            showComparison();
+        }
+
+        function resetComparison(){
+            if(compareArray.length > 0){
+                compareLinearIndex = 0;
+                compareBinaryLeft = 0;
+                compareBinaryRight = compareArray.length - 1;
+                compareBinaryMid = Math.floor((compareBinaryLeft + compareBinaryRight) / 2);
+                compareLinearSteps = 0;
+                compareBinarySteps = 0;
+                compareLinearDone = false;
+                compareBinaryDone = false;
+                showComparison();
+            }
+        }
+    </script>
+</body>
+
+</html>
